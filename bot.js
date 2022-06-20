@@ -43,10 +43,23 @@ const scene = new Scene('test',
     },
 );
 
+async function tryUserDatabase(userId){
+    let user = await supabase.from('user-bot-vk').select('id').eq('id', userId);
+    return user.data.length != 0;
+}
+
 const registerScene = new Scene('register',
-    (ctx) =>{
-        ctx.reply("Введите ваш никнейм");
-        ctx.scene.next();
+    async (ctx) => {
+        const isChecked = await tryUserDatabase(ctx.message.from_id);
+        console.log(isChecked);
+        if( isChecked == true){
+            ctx.reply("Добрый день, Вы уже зарегистрированы!");
+            ctx.scene.leave()
+        }
+        else{
+            ctx.reply("Введите ваш никнейм");
+            ctx.scene.next();
+        }
     },
     (ctx) =>{
         ctx.session.nickname = ctx.message.text;
