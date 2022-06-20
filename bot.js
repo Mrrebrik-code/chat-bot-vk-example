@@ -30,19 +30,6 @@ async function saveDatabaseUser(userId, nickname){
     }
 }
 
-const scene = new Scene('test',
-    (ctx) => {
-        ctx.scene.next();
-        ctx.reply("Тестовое собщение 1");
-
-    },
-    (ctx) => {
-        ctx.scene.leave(); 
-        ctx.reply("Тестовое собщение 1");
-
-    },
-);
-
 async function tryUserDatabase(userId){
     let user = await supabase.from('user-bot-vk').select('id').eq('id', userId);
     return user.data.length != 0;
@@ -51,13 +38,12 @@ async function tryUserDatabase(userId){
 const registerScene = new Scene('register',
     async (ctx) => {
         const isChecked = await tryUserDatabase(ctx.message.from_id);
-        console.log(isChecked);
-        if( isChecked == true){
+        if(isChecked == true){
             ctx.reply("Добрый день, Вы уже зарегистрированы!");
             ctx.scene.leave()
         }
         else{
-            ctx.reply("Введите ваш никнейм");
+            ctx.reply("Введите ваш никнейм:");
             ctx.scene.next();
         }
     },
@@ -80,16 +66,11 @@ const registerScene = new Scene('register',
 const session = new Session();
 const stage = new Stage
 (
-    scene,
     registerScene
 );
 
 bot.use(session.middleware());
 bot.use(stage.middleware());
-
-bot.command('/test', (ctx) => {
-    ctx.scene.enter('test');
-});
 
 bot.command('/start', async (ctx) => {
     try {
@@ -100,7 +81,16 @@ bot.command('/start', async (ctx) => {
   });
 
 bot.command('/get-id', async (ctx) =>{
-    await ctx.reply(`Ваш индификатор: ${ctx.message.from_id}`);
+    const isChecked = await tryUserDatabase(ctx.message.from_id);
+    console.log(isChecked);
+    if(isChecked == true){
+        await ctx.reply(`Ваш индификатор: ${ctx.message.from_id}`);
+    }
+    else{
+        await ctx.reply("Вы еще не зарегестрированы чтобы использовать функционал бота!");
+        await ctx.reply("Напишите /register для регистрации аккаунта.");
+    }
+   
 });
 
 bot.command('/register', async (ctx) =>{
