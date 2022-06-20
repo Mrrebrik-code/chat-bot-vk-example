@@ -74,6 +74,7 @@ const deleteScene = new Scene('delete',
         else{
             await ctx.reply("Вы еще не зарегестрированы чтобы использовать функционал бота!");
             await ctx.reply("Напишите /register для регистрации аккаунта.");
+            await ctx.scene.leave();
         }
     },
     async (ctx) =>{
@@ -137,10 +138,12 @@ bot.command('/get-id', async (ctx) =>{
     const isChecked = await tryUserDatabase(ctx.message.from_id);
     if(isChecked == true){
         await ctx.reply(`Ваш индификатор: ${ctx.message.from_id}`);
+        await ctx.scene.leave();
     }
     else{
         await ctx.reply("Вы еще не зарегестрированы чтобы использовать функционал бота!");
         await ctx.reply("Напишите /register для регистрации аккаунта.");
+        await ctx.scene.leave();
     }
    
 });
