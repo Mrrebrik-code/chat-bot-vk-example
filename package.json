@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "@supabase/supabase-js": "^1.35.3",
     "node-vk-bot-api": "^3.5.0",
     "nodemon": "^2.0.16"
   },
