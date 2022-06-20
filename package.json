@@ -1,0 +1,23 @@
+{
+  "dependencies": {
+    "node-vk-bot-api": "^3.5.0",
+    "nodemon": "^2.0.16"
+  },
+  "name": "chat-bot-vk-example",
+  "description": "I'm testing functions to package node-vk-bot-api",
+  "version": "0.0.1",
+  "main": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mrrebrik-code/chat-bot-vk-example.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Mrrebrik-code/chat-bot-vk-example/issues"
+  },
+  "homepage": "https://github.com/Mrrebrik-code/chat-bot-vk-example#readme"
+}
