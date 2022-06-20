@@ -63,10 +63,63 @@ const registerScene = new Scene('register',
     },
 );
 
+const deleteScene = new Scene('delete', 
+    async (ctx) =>{
+        const isChecked = await tryUserDatabase(ctx.message.from_id);
+        if(isChecked == true){
+            await ctx.reply("Вы уверены что действительно хотите удалить аккаунт из нашей базы данных? (Y/N)");
+            await ctx.reply("Восстановить удаленный аккаунт - не возможно!");
+            await ctx.scene.next();
+        }
+        else{
+            await ctx.reply("Вы еще не зарегестрированы чтобы использовать функционал бота!");
+            await ctx.reply("Напишите /register для регистрации аккаунта.");
+        }
+    },
+    async (ctx) =>{
+        if(ctx.message.text == "Y"){
+            await ctx.reply("Идет процес удаления...")
+            const isChecked = await deleteUserFromDatabase(ctx.message.from_id);
+
+            if(isChecked == true){
+                await ctx.reply("Вы успешно удалены из базы данных!");
+                await ctx.scene.leave();
+            }
+            else{
+                await ctx.reply("На стороне сервера произошел сбой. Сейчас мы не можем вас удалить. Попробуйте позже...");
+                await ctx.scene.leave();
+            }
+        }
+        else if(ctx.message.text == "N"){
+            await ctx.reply("Удаление отменено! Мы рады что Вы с нами!");
+            await ctx.scene.leave();
+        }
+        
+    },
+
+);
+
+async function deleteUserFromDatabase(userId){
+    const { data, error } = await supabase
+    .from('user-bot-vk')
+    .delete()
+    .eq('id', userId);
+
+    if(error == null){
+        return true;
+    }
+    else{
+        return false;
+    }
+
+
+}
+
 const session = new Session();
 const stage = new Stage
 (
-    registerScene
+    registerScene,
+    deleteScene
 );
 
 bot.use(session.middleware());
@@ -82,7 +135,6 @@ bot.command('/start', async (ctx) => {
 
 bot.command('/get-id', async (ctx) =>{
     const isChecked = await tryUserDatabase(ctx.message.from_id);
-    console.log(isChecked);
     if(isChecked == true){
         await ctx.reply(`Ваш индификатор: ${ctx.message.from_id}`);
     }
@@ -91,6 +143,11 @@ bot.command('/get-id', async (ctx) =>{
         await ctx.reply("Напишите /register для регистрации аккаунта.");
     }
    
+});
+
+bot.command('/delete', async (ctx) =>{
+    //console.log( `User to id: ${ctx.message.from_id} delete account from database`);
+    ctx.scene.enter('delete');
 });
 
 bot.command('/register', async (ctx) =>{
