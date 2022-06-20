@@ -158,4 +158,8 @@ bot.command('/register', async (ctx) =>{
 });
 
 
-bot.startPolling();
+bot.startPolling((err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
