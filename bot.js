@@ -5,13 +5,10 @@ const Scene = require('node-vk-bot-api/lib/scene');
 const Markup = require('node-vk-bot-api/lib/markup');
 const { createClient } = require('@supabase/supabase-js');
 const shortId = require("shortid");
+const config = require('./config.json');
 
-const apiSupabase = "https://opslbkbxnzgfapmztpuh.supabase.co";
-const publicAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wc2xia2J4bnpnZmFwbXp0cHVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDkxODgwMTgsImV4cCI6MTk2NDc2NDAxOH0.4l58i9tDErg90QLlPFL-5tfXm3ajJy7MOobvTCRH2GA";
-const token = "vk1.a.RkxqWessN1asBBs449nKg9Y4XGZE4VU71Ykbm0KIcPw9jIosLbMnZAaRjobZkfM0m_Kp4YBAZA7-pA_WoTV2F2YNfICPa5sF-6Ic6N0cq56PGOhtmxQbFDzAECMcGICA5LtG5LQjqO-Up2qzqpR5ZWXLJdd_XQlJSJLntfn5Pz4Q3Wf0OwFnzapCgcsmMZJx";
-
-const bot = new VkBot(token);
-const supabase = createClient(apiSupabase, publicAnonKey);
+const bot = new VkBot(config.tokens['vk-bot-token']);
+const supabase = createClient(config.tokens.supabaseApi, config.tokens.supabasePublicAnonKey);
 
 
 async function saveDatabaseUser(userId, nickname){
