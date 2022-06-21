@@ -2,6 +2,7 @@
   "dependencies": {
     "@supabase/supabase-js": "^1.35.3",
     "node-vk-bot-api": "^3.4.0",
+    "shortid": "^2.2.16",
     "nodemon": "^2.0.16"
   },
   "name": "chat-bot-vk-example",

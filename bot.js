@@ -4,6 +4,7 @@ const Stage = require('node-vk-bot-api/lib/stage');
 const Scene = require('node-vk-bot-api/lib/scene');
 const Markup = require('node-vk-bot-api/lib/markup');
 const { createClient } = require('@supabase/supabase-js');
+const shortId = require("shortid");
 
 const apiSupabase = "https://opslbkbxnzgfapmztpuh.supabase.co";
 const publicAnonKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9wc2xia2J4bnpnZmFwbXp0cHVoIiwicm9sZSI6ImFub24iLCJpYXQiOjE2NDkxODgwMTgsImV4cCI6MTk2NDc2NDAxOH0.4l58i9tDErg90QLlPFL-5tfXm3ajJy7MOobvTCRH2GA";
@@ -85,11 +86,51 @@ const markupMenuToChat = Markup.keyboard
   ]
 ]);
 
+function generate(n) {
+    var add = 1,
+      max = 12 - add;
+  
+    if (n > max) {
+      return generate(max) + generate(n - max);
+    }
+  
+    max = Math.pow(10, n + add);
+    var min = max / 10; // Math.pow(10, n) basically 
+    var number = Math.floor(Math.random() * (max - min + 1)) + min;
+  
+    return ("" + number).substring(add);
+  }
+
 const createChat = new Scene('create-chat',
     async (ctx) =>{
-
+        await ctx.reply("Придумайте пароль для анонимной комнаты:")
+        await ctx.scene.next();
     },
+    async (ctx) =>{
+        const passwordToRoom = ctx.message.text;
+        const randomIdRoom = generate(6);
+        const isCreateRoomChat = await createRoom(passwordToRoom, ctx.message.from_id, randomIdRoom);
+        console.log(isCreateRoomChat);
+        await ctx.scene.leave();
+    }
 );
+
+
+async function createRoom(password, adminUserId, roomId){
+    let room = await supabase
+            .from('chats-bot-vk')
+            .insert(
+            [ 
+                { 
+                    id: roomId,
+                    name: 'empty', 
+                    password: password,
+                    adminUserId: adminUserId,
+                }
+            ]);
+
+    return room.data.length != 0;
+}
 
 const deleteScene = new Scene('delete', 
     async (ctx) =>{
@@ -150,7 +191,8 @@ const session = new Session();
 const stage = new Stage
 (
     registerScene,
-    deleteScene
+    deleteScene,
+    createChat
 );
 
 bot.use(session.middleware());
@@ -187,6 +229,10 @@ bot.command('/delete', async (ctx) =>{
 
 bot.command('/register', async (ctx) =>{
     ctx.scene.enter('register');
+});
+
+bot.command('/create-chat', async (ctx) =>{
+    await ctx.scene.enter('create-chat');
 });
 
 
