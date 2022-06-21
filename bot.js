@@ -140,6 +140,15 @@ const joinChat = new Scene('join-chat',
 
         if(isLoginedToRoomChat == true){
             await ctx.reply("Вы успешно вошли в комнату!");
+
+            const idAdmin = await getIdAdminUser(ctx.session.idRoomChat)
+            ctx.session.adminUserId = idAdmin;
+
+            const nicknameAdmin = await getUserNicknameToId(idAdmin);
+
+            await ctx.reply(`Можете писать сообщения для ${nicknameAdmin}[Id: ${idAdmin}]`);
+
+            await ctx.scene.next();
         }
         else{
             await ctx.reply(`Пароль не подходит для комнаты с индификатором: ${ctx.session.idRoomChat}.`);
@@ -147,13 +156,18 @@ const joinChat = new Scene('join-chat',
         }
     },
     async (ctx) =>{
-       // bot.sendMessage(ctx.session.adminUserId);
+       bot.sendMessage(ctx.session.adminUserId, ctx.message.text);
     }
 );
 
 async function getIdAdminUser(roomId){
     let room = await supabase.from('chats-bot-vk').select('id, adminUserId').eq('id', roomId);
     return room.data[0].adminUserId;
+}
+
+async function getUserNicknameToId(userid){
+    let room = await supabase.from('user-bot-vk').select('id, nickname').eq('id', userid);
+    return room.data[0].nickname;
 }
 
 
