@@ -2,6 +2,7 @@ const VkBot = require('node-vk-bot-api');
 const Session = require('node-vk-bot-api/lib/session');
 const Stage = require('node-vk-bot-api/lib/stage');
 const Scene = require('node-vk-bot-api/lib/scene');
+const Markup = require('node-vk-bot-api/lib/markup');
 const { createClient } = require('@supabase/supabase-js');
 
 const apiSupabase = "https://opslbkbxnzgfapmztpuh.supabase.co";
@@ -67,7 +68,14 @@ const deleteScene = new Scene('delete',
     async (ctx) =>{
         const isChecked = await tryUserDatabase(ctx.message.from_id);
         if(isChecked == true){
-            await ctx.reply("Вы уверены что действительно хотите удалить аккаунт из нашей базы данных? (Y/N)");
+            //await ctx.reply("Вы уверены что действительно хотите удалить аккаунт из нашей базы данных?");
+            await ctx.reply('Вы уверены что действительно хотите удалить аккаунт из нашей базы данных?', null, Markup
+            .keyboard([
+              'Да, удалить',
+              'Отмена',
+            ], { columns: 2 })
+            .inline(),
+          );
             await ctx.reply("Восстановить удаленный аккаунт - не возможно!");
             await ctx.scene.next();
         }
@@ -78,7 +86,7 @@ const deleteScene = new Scene('delete',
         }
     },
     async (ctx) =>{
-        if(ctx.message.text == "Y"){
+        if(ctx.message.text == "Да, удалить"){
             await ctx.reply("Идет процес удаления...")
             const isChecked = await deleteUserFromDatabase(ctx.message.from_id);
 
@@ -91,8 +99,11 @@ const deleteScene = new Scene('delete',
                 await ctx.scene.leave();
             }
         }
-        else if(ctx.message.text == "N"){
+        else if(ctx.message.text == "Отмена"){
             await ctx.reply("Удаление отменено! Мы рады что Вы с нами!");
+            await ctx.scene.leave();
+        }
+        else{
             await ctx.scene.leave();
         }
         
@@ -112,8 +123,6 @@ async function deleteUserFromDatabase(userId){
     else{
         return false;
     }
-
-
 }
 
 const session = new Session();
@@ -127,8 +136,21 @@ bot.use(session.middleware());
 bot.use(stage.middleware());
 
 bot.command('/start', async (ctx) => {
+    console.log("start");
     try {
-      await ctx.reply('Добро пожаловать! Данный бот является тестовым!');
+      //await ctx.reply('Добро пожаловать! Данный бот является тестовым!');
+      ctx.reply('Добро пожаловать! Это Бот, который сможет предоставить аноноимный чат для вас и ваших знакомых!>', null, Markup
+    .keyboard([
+      [
+        Markup.button('/get-id', 'primary'),
+        Markup.button('/create-chat', 'primary'),
+        Markup.button('/join-chat', 'primary'),
+      ],
+      [
+        Markup.button('/register', 'positive'),
+        Markup.button('/delete', 'negative'),
+      ],
+    ]));
     } catch (e) {
       console.error(e);
     }
