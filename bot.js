@@ -124,6 +124,7 @@ const joinChat = new Scene('join-chat',
         const idRoom = ctx.message.text;
         const isCheckedRoomId = await tryIdRoomToDatabase(idRoom);
         if(isCheckedRoomId == true){
+            ctx.session.idRoomChat = idRoom;
             await ctx.reply("Мы нашли комнату с таким инфикатором!");
             await ctx.reply("Введите пароль для подключения:");
             await ctx.scene.next();
@@ -135,10 +136,25 @@ const joinChat = new Scene('join-chat',
     },
     async (ctx) =>{
         const passwordRoom = ctx.message.text;
-        console.log(passwordRoom);
-        await ctx.scene.leave();
+        const isLoginedToRoomChat = await joinToRoomChat(ctx.session.idRoomChat, passwordRoom, ctx.message.from_id);
+
+        if(isLoginedToRoomChat == true){
+            await ctx.reply("Вы успешно вошли в комнату!");
+        }
+        else{
+            await ctx.reply(`Пароль не подходит для комнаты с индификатором: ${ctx.session.idRoomChat}.`);
+            await ctx.reply('Введите правильный пароль:');
+        }
+    },
+    async (ctx) =>{
+       // bot.sendMessage(ctx.session.adminUserId);
     }
 );
+
+async function getIdAdminUser(roomId){
+    let room = await supabase.from('chats-bot-vk').select('id, adminUserId').eq('id', roomId);
+    return room.data[0].adminUserId;
+}
 
 
 async function createRoomToDatabase(password, adminUserId, roomId){
@@ -162,8 +178,21 @@ async function tryIdRoomToDatabase(roomId){
     return room.data.length != 0;
 }
 
-async function joinToRoomChat(roomChatId, password){
+async function joinToRoomChat(roomChatId, password, userId){
 
+    let roomData = await supabase.from('chats-bot-vk').select('password').eq('id', roomChatId);
+    if(roomData.data[0].password == password){
+        let room = await supabase
+            .from('chats-bot-vk')
+            .update({ 'userId': userId })
+            .match({ 'id': roomChatId })
+
+        return true;
+    }
+    else{
+        return false;
+    }
+    
 }
 
 const deleteScene = new Scene('delete', 
