@@ -1,0 +1,26 @@
+Todo list to app bot services
+
+Anonymous chat:
+    1. Join/Leave
+    2. Create/Delete
+    3. Show ID room
+    4. Set/Update password
+    7. Set/Update name
+    8. Set private/public status room
+    9. Send message to users from current conected room
+
+Friends:
+    1. Add/Remove friend
+    2. Send message to id friend
+    3. Open/Close messages to friend
+
+Database content:
+    1. Show TOP films/games to target category from list
+
+Profile:
+    1. Nickname
+    2. Status
+
+Meet:
+    1. Search job
+    2. 
