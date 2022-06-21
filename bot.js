@@ -109,14 +109,39 @@ const createChat = new Scene('create-chat',
     async (ctx) =>{
         const passwordToRoom = ctx.message.text;
         const randomIdRoom = generate(6);
-        const isCreateRoomChat = await createRoom(passwordToRoom, ctx.message.from_id, randomIdRoom);
+        const isCreateRoomChat = await createRoomToDatabase(passwordToRoom, ctx.message.from_id, randomIdRoom);
         console.log(isCreateRoomChat);
         await ctx.scene.leave();
     }
 );
 
+const joinChat = new Scene('join-chat',
+    async (ctx) =>{
+        await ctx.reply("Введите инфикатор комнаты:")
+        await ctx.scene.next();
+    },
+    async (ctx) =>{
+        const idRoom = ctx.message.text;
+        const isCheckedRoomId = await tryIdRoomToDatabase(idRoom);
+        if(isCheckedRoomId == true){
+            await ctx.reply("Мы нашли комнату с таким инфикатором!");
+            await ctx.reply("Введите пароль для подключения:");
+            await ctx.scene.next();
+        }
+        else{
+            await ctx.reply("Комнаты с таким индификатор нет!");
+            await ctx.reply("Пожалуйста, попробуйте еще раз ввести индификатор комнаты:");
+        }
+    },
+    async (ctx) =>{
+        const passwordRoom = ctx.message.text;
+        console.log(passwordRoom);
+        await ctx.scene.leave();
+    }
+);
 
-async function createRoom(password, adminUserId, roomId){
+
+async function createRoomToDatabase(password, adminUserId, roomId){
     let room = await supabase
             .from('chats-bot-vk')
             .insert(
@@ -130,6 +155,15 @@ async function createRoom(password, adminUserId, roomId){
             ]);
 
     return room.data.length != 0;
+}
+
+async function tryIdRoomToDatabase(roomId){
+    let room = await supabase.from('chats-bot-vk').select('id').eq('id', roomId);
+    return room.data.length != 0;
+}
+
+async function joinToRoomChat(roomChatId, password){
+
 }
 
 const deleteScene = new Scene('delete', 
@@ -192,7 +226,8 @@ const stage = new Stage
 (
     registerScene,
     deleteScene,
-    createChat
+    createChat,
+    joinChat
 );
 
 bot.use(session.middleware());
@@ -233,6 +268,10 @@ bot.command('/register', async (ctx) =>{
 
 bot.command('/create-chat', async (ctx) =>{
     await ctx.scene.enter('create-chat');
+});
+
+bot.command('/join-chat', async (ctx) =>{
+    await ctx.scene.enter('join-chat');
 });
 
 
