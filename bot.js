@@ -64,18 +64,39 @@ const registerScene = new Scene('register',
     },
 );
 
+const markupMenuToDelete = Markup.keyboard(['Да, удалить', 'Отмена',], { columns: 2 }).inline();
+const markupMenuToStart = Markup.keyboard
+([
+  [
+    Markup.button('/get-id', 'primary'),
+    Markup.button('/create-chat', 'primary'),
+    Markup.button('/join-chat', 'primary'),
+  ],
+  [
+    Markup.button('/register', 'positive'),
+    Markup.button('/delete', 'negative'),
+  ],
+]);
+
+const markupMenuToChat = Markup.keyboard
+([
+  [
+    Markup.button('/leave-chat', 'negative'),
+  ]
+]);
+
+const createChat = new Scene('create-chat',
+    async (ctx) =>{
+
+    },
+);
+
 const deleteScene = new Scene('delete', 
     async (ctx) =>{
         const isChecked = await tryUserDatabase(ctx.message.from_id);
         if(isChecked == true){
             //await ctx.reply("Вы уверены что действительно хотите удалить аккаунт из нашей базы данных?");
-            await ctx.reply('Вы уверены что действительно хотите удалить аккаунт из нашей базы данных?', null, Markup
-            .keyboard([
-              'Да, удалить',
-              'Отмена',
-            ], { columns: 2 })
-            .inline(),
-          );
+            await ctx.reply('Вы уверены что действительно хотите удалить аккаунт из нашей базы данных?', null, markupMenuToDelete);
             await ctx.reply("Восстановить удаленный аккаунт - не возможно!");
             await ctx.scene.next();
         }
@@ -139,18 +160,7 @@ bot.command('/start', async (ctx) => {
     console.log("start");
     try {
       //await ctx.reply('Добро пожаловать! Данный бот является тестовым!');
-      ctx.reply('Добро пожаловать! Это Бот, который сможет предоставить аноноимный чат для вас и ваших знакомых!>', null, Markup
-    .keyboard([
-      [
-        Markup.button('/get-id', 'primary'),
-        Markup.button('/create-chat', 'primary'),
-        Markup.button('/join-chat', 'primary'),
-      ],
-      [
-        Markup.button('/register', 'positive'),
-        Markup.button('/delete', 'negative'),
-      ],
-    ]));
+      ctx.reply('Добро пожаловать! Это Бот, который сможет предоставить аноноимный чат для вас и ваших знакомых!>', null, markupMenuToStart);
     } catch (e) {
       console.error(e);
     }
