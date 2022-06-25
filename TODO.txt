@@ -24,3 +24,12 @@ Profile:
 Meet:
     1. Search job
     2. 
+    
+Socket.io:
+    - Connect/Disconnect to server
+    - Send/On data to client
+    - Send message to room of client
+    - Send message to client of bot-chat
+    
+Arduino-ESP8266:
+
